@@ -1,5 +1,5 @@
 
-This is an OAuth 1.0 client for the iPhone.
+This is an OAuth 1.0 library for the iPhone.
 
 The target 'client' is an universal client that lets you log in and out.
 To test it against 11870.com you need to create a free account, register 
@@ -19,7 +19,7 @@ USAGE
      NSLog(@"%@",request.responseString);
 
 
- That's all you have to do, but is worth mentioning that what happens between (2) and (3):
+ Here is a detail of what happens between (2) and (3):
 
      The "request owner authorization" step opens an external browser pointed to the website 
      login page, for the user to authenticate himself and authorize the application.
@@ -31,7 +31,7 @@ USAGE
      protected resources on the user behalf.
 
  You don't need to worry about preserving the state of the OAuth flow between calls, that's 
- automatically handled using NSUserDefaults. If you prefer to treat OAuth as a singleton, 
+ automatically handled using NSUserDefaults. If you prefer to use OAuth as a singleton, 
  call [OAuthSingleton sharedInstance] instead using [OAuth new].
 
 
@@ -64,8 +64,8 @@ PROJECT LIBRARIES
 THINGS YOU MIGHT WANT TO DO
 
  If you want to use different service providers:
-     - Take out the hardcoded parameters in the init method and either make an init 
-       that accepts parameters or set them after initializing the class. 
+     - Take out the hardcoded parameters in the init method, and either make an init 
+       that accepts parameters, or set them after initializing the class. 
      - Change OAuthState to use a prefix for the NSUserDefault keys, or use Core Data.
 
  If you want to register a custom protocol for your app:
