@@ -1,0 +1,128 @@
+
+
+ OAUTH GOAL
+
+     The goal of OAuth is to grant delegated access to a CONSUMER over the private resources 
+     of an USER which are stored on a SERVICE PROVIDER, but without revealing the authentication
+     credentials of the user.
+
+     Example: my Flickr client (aka "consumer") wants to download the photos (aka "private resources") 
+     of an user stored on Flickr (aka "service provider"), but you don't want my client to know your
+     login and password (authentication credentials) to avoid the chance of me impersonating you,
+     and blowing up your account. So through a series of steps, you grant my client limited access
+     on your behalf (aka "delegated access"). At any time you can go back to the service provider
+     and revoke access.
+
+
+ OAUTH STEPS
+
+     Register your client with the service provider to obtain a "consumer key" and "consumer secret".
+     This involves creating a free account and filling a form. Example: 
+         http://11870.com/<YOURUSER>/apps/new
+         https://foursquare.com/oauth/
+         https://dev.twitter.com/apps/new
+     The shared secret (consumer secret) enables the use of "digital signatures" to authenticate 
+     the messages between client and server. The algorithm used (usually HMAC-SHA1) also provides 
+     integrity thanks to a hashing function.
+
+     1. Request temporary credentials.
+        Response contains:
+           - oauth_token: an identifier
+           - oauth_token_secret: a shared secret
+           - oauth_callback_confirmed: unimportant. Only used to differentiate between protocol versions.
+
+     2. Resource owner authorization.
+        User is redirected to the server to authenticate himself and authorize the application.
+        The URL is http://server/blahblah/authorize?oauth_token=xxx (that's the oauth token from the last step)
+        If everything goes well, the server redirects to callbackURL?oauth_token=xxx&oauth_verifier=xxx
+
+     3. Request Token credentials.
+        The response contains oauth_token, oauth_token_secret.
+
+     Now we are ready to repeatedly access protected resources using the tokens we got in the previous step.
+
+
+ PSEUDOCODE
+
+     requestTemporaryCredentials
+         - parameter=value:
+             oauth_callback=...
+             &oauth_consumer_key=...
+             &oauth_nonce=...
+             &oauth_signature_method=HMAC-SHA1
+             &oauth_timestamp=...
+             &oauth_version=1.0
+         - parameters = join(sort(urlEncode( parameter=value )), '&');
+         - baseString = HTTP_METHOD '&' urlEncode(normalized_url) '&' urlEncode(parameters)
+         - signature = base64 ( hmac-sha1(baseString, signatureKey) )
+         - header:
+             Authorization:
+               OAuth realm="",
+               oauth_callback=...,
+               oauth_consumer_key=...,
+               oauth_nonce=...,
+               oauth_signature=...,
+               oauth_signature_method=HMAC-SHA1,
+               oauth_timestamp=...,
+               oauth_version=1.0
+         - Returns: oauth_token=xxx &oauth_token_secret=xxx &oauth_callback_confirmed=true
+
+     requestOwnerAuthorization
+         - url?oauth_token=...
+         - Returns oauth_token=xxx&oauth_verifier=xxx
+
+     requestTokenCredentials
+         - parameter=value:
+             oauth_consumer_key=...
+             &oauth_nonce=...
+             &oauth_signature_method=HMAC-SHA1
+             &oauth_timestamp=...
+             &oauth_token=...      <---
+             &oauth_verifier=...   <---
+             &oauth_version=1.0
+         - parameters = join(sort(urlEncode( parameter=value )), '&');
+         - baseString = HTTP_METHOD '&' urlEncode(normalized_url) '&' urlEncode(parameters)
+         - signature = base64 ( hmac-sha1(baseString, signatureKey) )
+         - header:
+             Authorization:
+               OAuth realm=""
+               oauth_consumer_key=...,
+               oauth_nonce=...,
+               oauth_signature=...,
+               oauth_signature_method=HMAC-SHA1,
+               oauth_timestamp=...,
+               oauth_token=...,       <---
+               oauth_verifier=...,    <---
+               oauth_version=1.0
+         - Returns: oauth_token=xxx &oauth_token_secret=xxx
+
+     accessProtectedResourceWithUrl
+         - parameter=value:
+             oauth_consumer_key=...
+             &oauth_nonce=...
+             &oauth_signature_method=HMAC-SHA1
+             &oauth_timestamp=...
+             &oauth_token=...      
+             &oauth_version=1.0
+         - parameters = join(sort(urlEncode( parameter=value )), '&');
+         - baseString = HTTP_METHOD '&' urlEncode(normalized_url) '&' urlEncode(parameters)
+         - signature = base64 ( hmac-sha1(baseString, signatureKey) )
+         - header:
+             Authorization:
+               OAuth realm=""
+               oauth_consumer_key=...,
+               oauth_nonce=...,
+               oauth_signature=...,
+               oauth_signature_method=HMAC-SHA1,
+               oauth_timestamp=...,
+               oauth_token=...,       
+               oauth_version=1.0
+         - Response: the requested resource
+
+
+ OAUTH RESOURCES
+
+     OAuth 1.0 specification: http://tools.ietf.org/html/rfc5849
+     BeginnerÕs Guide to OAuth: http://hueniverse.com/oauth/
+
+
