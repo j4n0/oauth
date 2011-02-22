@@ -1,19 +1,12 @@
-//
-//  OAuthUtils.m
-//  oauth
-//
-//  Created by Alejandro Ramirez on 2/22/11.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
-//
-
 #import "OAuthUtils.h"
 
 
 @implementation OAuthUtils
 
 
-+ (NSString *)signClearText:(NSString *)text withSecret:(NSString *)secret 
-{
+/** @author Jon Crosby */
++ (NSString *)signClearText:(NSString *)text withSecret:(NSString *)secret {
+    
 	NSData *secretData = [secret dataUsingEncoding:NSUTF8StringEncoding];
     NSData *clearTextData = [text dataUsingEncoding:NSUTF8StringEncoding];
 	
@@ -56,9 +49,7 @@
     NSString *signatureKey = [NSString stringWithFormat:@"%@&%@", conSecret, tokSecret];
     
     // OAHMAC-SHA1: http://tools.ietf.org/html/rfc2104
-    //OAHMAC_SHA1SignatureProvider *sigProvider = [OAHMAC_SHA1SignatureProvider new];        
     NSString *signature = [OAuthUtils signClearText:baseString withSecret:signatureKey]; 
-    //[sigProvider release];
     
     return signature;
 }
@@ -111,6 +102,7 @@
 
 /**
  * SHA1 hash function.
+ * @author Jon Crosby
  */
 +(NSString*) sha1:(NSString*)input {
 	const char *cstr = [input cStringUsingEncoding:NSUTF8StringEncoding];
